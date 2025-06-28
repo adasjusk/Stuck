@@ -3,7 +3,6 @@ package com.orang.stuck;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -15,7 +14,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
-public class Stuck extends JavaPlugin implements CommandExecutor {
+public class Stuck extends JavaPlugin {
 
     private final Map<UUID, Long> cooldowns = new HashMap<>();
     private final Random random = new Random();
