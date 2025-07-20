@@ -33,9 +33,13 @@ public class Stuck extends JavaPlugin {
         saveDefaultConfig();
         loadConfigValues();
         
-        // Register the "stuck" command (with "escape" as its alias)
+        if (getCommand("stuck") == null) {
+            getLogger().severe("Command 'stuck' not defined in plugin.yml!");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         Objects.requireNonNull(getCommand("stuck")).setExecutor(this);
-        
+
         getLogger().info("stuck enabled thanks for using it!");
     }
 
