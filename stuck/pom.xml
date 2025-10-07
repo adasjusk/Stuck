@@ -6,6 +6,7 @@
 
     <groupId>com.orang</groupId>
     <artifactId>stuck</artifactId>
+    <!-- there is no 1.21.10 at my time of realesing this -->
     <version>6.0</version>
     <packaging>jar</packaging>
 
