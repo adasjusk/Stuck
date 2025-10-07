@@ -6,7 +6,7 @@
 
     <groupId>com.orang</groupId>
     <artifactId>stuck</artifactId>
-    <version>5.0</version>
+    <version>6.0</version>
     <packaging>jar</packaging>
 
     <name>Stuck</name>
