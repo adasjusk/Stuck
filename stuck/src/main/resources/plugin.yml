@@ -1,5 +1,5 @@
 name: Stuck
-version: '5.0'
+version: '6.1'
 main: com.orang.stuck.Stuck
 api-version: '1.21'
 description: 'A plugin to help players get unstuck from glitched terrain'
@@ -11,7 +11,6 @@ commands:
     usage: /stuck
     aliases: [escape]
     permission: stuck.use
-
 permissions:
   stuck.use:
     description: Allows use of the /stuck command

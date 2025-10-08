@@ -26,6 +26,8 @@ public class Stuck extends JavaPlugin {
     private int minY;
     private int maxY;
     private boolean debug;
+    private boolean avoidHazardousBlocks;
+    private boolean avoidUnstableBlocks;
 
     @Override
     public void onEnable() {
@@ -56,9 +58,12 @@ public class Stuck extends JavaPlugin {
         minY = config.getInt("min-y", 32);
         maxY = config.getInt("max-y", 120);
         debug = config.getBoolean("debug", false);
+        avoidHazardousBlocks = config.getBoolean("avoid-hazardous-blocks", true);
+        avoidUnstableBlocks = config.getBoolean("avoid-unstable-blocks", true);
         
         getLogger().info("Loaded configuration: cooldown=" + cooldownSeconds + "s, radius=" + searchRadius +
-                           ", maxAttempts=" + maxAttempts + ", Y-range=" + minY + "-" + maxY);
+                           ", maxAttempts=" + maxAttempts + ", Y-range=" + minY + "-" + maxY +
+                           ", avoidHazards=" + avoidHazardousBlocks + ", avoidUnstable=" + avoidUnstableBlocks);
     }
 
     @Override
@@ -128,26 +133,18 @@ public class Stuck extends JavaPlugin {
             
             // Delay teleport by 2 seconds (40 ticks) for dramatic effect
             Bukkit.getScheduler().runTaskLater(this, () -> {
-                // Ensure the destination chunk is loaded
-                if (!safeLoc.getWorld().isChunkLoaded(safeLoc.getBlockX() >> 4, safeLoc.getBlockZ() >> 4)) {
-                    safeLoc.getChunk().load();
-                }
-                
+                // Ensure the destination chunk is loaded (improved for 1.21.10)
                 try {
-                    boolean success = player.teleport(safeLoc);
-                    if (!success) {
-                        player.sendMessage(ChatColor.RED + "Teleportation failed. Try again or contact an admin.");
-                        getLogger().warning("Teleport failed for " + player.getName() + " to " +
-                                              safeLoc.getWorld().getName() + " at " + safeLoc.getX() + ", " +
-                                              safeLoc.getY() + ", " + safeLoc.getZ());
+                    if (!safeLoc.getWorld().isChunkLoaded(safeLoc.getBlockX() >> 4, safeLoc.getBlockZ() >> 4)) {
+                        safeLoc.getChunk().load();
+                        // Give chunk a moment to fully load
+                        Bukkit.getScheduler().runTaskLater(this, () -> performTeleport(player, safeLoc), 5L);
                     } else {
-                        playTeleportSound(safeLoc);
-                        spawnParticleEffect(safeLoc, Particle.END_ROD);
-                        player.sendMessage(ChatColor.GREEN + "There you go! You've been teleported to a safe location.");
+                        performTeleport(player, safeLoc);
                     }
                 } catch (Exception e) {
-                    player.sendMessage(ChatColor.RED + "An error occurred during teleportation: " + e.getMessage());
-                    getLogger().severe("Error teleporting " + player.getName() + ": " + e.getMessage());
+                    player.sendMessage(ChatColor.RED + "Failed to prepare teleportation location: " + e.getMessage());
+                    getLogger().severe("Chunk loading error for " + player.getName() + ": " + e.getMessage());
                 }
             }, 40L);
         } else {
@@ -158,9 +155,37 @@ public class Stuck extends JavaPlugin {
     }
 
     /**
+     * Performs the actual teleportation with proper error handling.
+     * Separated for better code organization and reusability.
+     */
+    private void performTeleport(Player player, Location safeLoc) {
+        try {
+            boolean success = player.teleport(safeLoc);
+            if (!success) {
+                player.sendMessage(ChatColor.RED + "Teleportation failed. Try again or contact an admin.");
+                getLogger().warning("Teleport failed for " + player.getName() + " to " +
+                                      safeLoc.getWorld().getName() + " at " + safeLoc.getX() + ", " +
+                                      safeLoc.getY() + ", " + safeLoc.getZ());
+            } else {
+                playTeleportSound(safeLoc);
+                spawnParticleEffect(safeLoc, Particle.END_ROD);
+                player.sendMessage(ChatColor.GREEN + "There you go! You've been teleported to a safe location.");
+                
+                if (debug) {
+                    getLogger().info("Successfully teleported " + player.getName() + " to " +
+                                       safeLoc.getWorld().getName() + " at " + safeLoc.getBlockX() + ", " +
+                                       safeLoc.getBlockY() + ", " + safeLoc.getBlockZ());
+                }
+            }
+        } catch (Exception e) {
+            player.sendMessage(ChatColor.RED + "An error occurred during teleportation: " + e.getMessage());
+            getLogger().severe("Error teleporting " + player.getName() + ": " + e.getMessage());
+        }
+    }
+
+    /**
      * Searches for a safe location based on configuration values.
-     * It loops through a number of attempts, randomly offsetting the location,
-     * and checks for a solid block below with two air blocks above.
+     * Enhanced for 1.21.10 with better world height handling and hazard detection.
      */
     private Location findSafeLocation(Location start) {
         World world = start.getWorld();
@@ -169,9 +194,15 @@ public class Stuck extends JavaPlugin {
             return null;
         }
 
-        // Adjust min/max Y based on world environment
-        int worldMinY = Math.max(world.getMinHeight(), minY);
-        int worldMaxY = Math.min(world.getMaxHeight() - 2, maxY);
+        // Adjust min/max Y based on world environment and modern world heights
+        int worldMinY = Math.max(world.getMinHeight() + 1, minY); // +1 to avoid bedrock level
+        int worldMaxY = Math.min(world.getMaxHeight() - 3, maxY); // -3 for head clearance
+        
+        // For 1.21+ worlds, use extended height ranges if not configured
+        if (minY == 32 && maxY == 120) { // Default values
+            worldMinY = Math.max(world.getMinHeight() + 5, -50); // Better default for new worlds
+            worldMaxY = Math.min(world.getMaxHeight() - 3, 200); // Better default for new worlds
+        }
         
         if (debug) {
             getLogger().info("Looking for safe location in world " + world.getName() +
@@ -200,9 +231,12 @@ public class Stuck extends JavaPlugin {
                     
                     // Check for a safe location (solid ground, air at feet and head level)
                     if (ground.getType().isSolid() &&
+                        (!avoidUnstableBlocks || (!ground.getType().toString().contains("LEAVES") && // Avoid leaves as they can be temporary
+                        !ground.getType().toString().contains("SNOW"))) && // Avoid snow layers
                         feet.getType() == Material.AIR &&
                         head.getType() == Material.AIR &&
-                        !ground.isLiquid()) {
+                        !ground.isLiquid() &&
+                        (!avoidHazardousBlocks || !isHazardousBlock(ground))) { // Check for hazardous blocks
                         
                         // Create location with centered coordinates and correct orientation
                         Location safeLocation = new Location(world, x + 0.5, y, z + 0.5, start.getYaw(), start.getPitch());
@@ -251,5 +285,29 @@ public class Stuck extends JavaPlugin {
                 }
             }
         }
+    }
+
+    /**
+     * Checks if a block is hazardous to teleport on top of.
+     * Updated for 1.21.10 compatibility with additional hazard checks.
+     */
+    private boolean isHazardousBlock(Block block) {
+        Material type = block.getType();
+        String typeName = type.toString();
+        
+        // Check for dangerous blocks (updated for 1.21.10)
+        return typeName.contains("LAVA") ||
+               typeName.contains("FIRE") ||
+               typeName.contains("MAGMA") ||
+               typeName.contains("CACTUS") ||
+               typeName.contains("SWEET_BERRY") ||
+               typeName.contains("CAMPFIRE") ||
+               typeName.contains("WITHER_ROSE") ||
+               typeName.contains("POINTED_DRIPSTONE") ||
+               type == Material.SOUL_FIRE ||
+               type == Material.SOUL_CAMPFIRE ||
+               // Additional 1.21+ hazards
+               (typeName.contains("COPPER") && typeName.contains("EXPOSED")) ||
+               (typeName.contains("TRIAL") && typeName.contains("SPAWNER"));
     }
 }
