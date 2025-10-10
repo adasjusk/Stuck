@@ -1,5 +1,5 @@
 name: Stuck
-version: '6.1'
+version: '6.2'
 main: com.orang.stuck.Stuck
 api-version: '1.21'
 description: 'A plugin to help players get unstuck from glitched terrain'

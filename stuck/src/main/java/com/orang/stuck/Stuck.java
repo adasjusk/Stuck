@@ -28,6 +28,7 @@ public class Stuck extends JavaPlugin {
     private boolean debug;
     private boolean avoidHazardousBlocks;
     private boolean avoidUnstableBlocks;
+    private boolean printSuccessMessage;
 
     @Override
     public void onEnable() {
@@ -60,10 +61,12 @@ public class Stuck extends JavaPlugin {
         debug = config.getBoolean("debug", false);
         avoidHazardousBlocks = config.getBoolean("avoid-hazardous-blocks", true);
         avoidUnstableBlocks = config.getBoolean("avoid-unstable-blocks", true);
+        printSuccessMessage = config.getBoolean("print-success-message", true);
         
         getLogger().info("Loaded configuration: cooldown=" + cooldownSeconds + "s, radius=" + searchRadius +
                            ", maxAttempts=" + maxAttempts + ", Y-range=" + minY + "-" + maxY +
-                           ", avoidHazards=" + avoidHazardousBlocks + ", avoidUnstable=" + avoidUnstableBlocks);
+                           ", avoidHazards=" + avoidHazardousBlocks + ", avoidUnstable=" + avoidUnstableBlocks +
+                           ", printSuccess=" + printSuccessMessage);
     }
 
     @Override
@@ -169,7 +172,9 @@ public class Stuck extends JavaPlugin {
             } else {
                 playTeleportSound(safeLoc);
                 spawnParticleEffect(safeLoc, Particle.END_ROD);
-                player.sendMessage(ChatColor.GREEN + "There you go! You've been teleported to a safe location.");
+                if (printSuccessMessage) {
+                    player.sendMessage(ChatColor.GREEN + "There you go! You've been teleported to a safe location.");
+                }
                 
                 if (debug) {
                     getLogger().info("Successfully teleported " + player.getName() + " to " +

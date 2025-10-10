@@ -16,3 +16,5 @@ debug: false
 avoid-hazardous-blocks: true
 # Avoid unstable blocks like leaves and snow layers
 avoid-unstable-blocks: true
+# Print success message when player gets unstuck (disable to reduce spam)
+print-success-message: true
