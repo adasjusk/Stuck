@@ -18,8 +18,6 @@ public class Stuck extends JavaPlugin {
 
     private final Map<UUID, Long> cooldowns = new HashMap<>();
     private final Random random = new Random();
-
-    // Configurable parameters
     private int cooldownSeconds;
     private int searchRadius;
     private int maxAttempts;
@@ -32,10 +30,8 @@ public class Stuck extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Save default config if it doesn't exist
         saveDefaultConfig();
         loadConfigValues();
-        
         if (getCommand("stuck") == null) {
             getLogger().severe("Command 'stuck' not defined in plugin.yml!");
             getServer().getPluginManager().disablePlugin(this);
@@ -71,29 +67,24 @@ public class Stuck extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        // We only registered the "stuck" command; both /stuck and /escape will trigger this
         if (!cmd.getName().equalsIgnoreCase("stuck")) {
             return false;
         }
         
-        // Debug message to check which alias was used (optional)
         if (debug) {
             getLogger().info("Command triggered by " + sender.getName() + " using alias: " + label);
         }
         
-        // Ensure the sender is a player
         if (!(sender instanceof Player player)) {
             sender.sendMessage(ChatColor.RED + "Only players can use this command.");
             return true;
         }
         
-        // Check permission
         if (!player.hasPermission("stuck.use")) {
             player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
             return true;
         }
         
-        // Check cooldown
         UUID uuid = player.getUniqueId();
         long now = System.currentTimeMillis();
         if (cooldowns.containsKey(uuid)) {
@@ -105,7 +96,6 @@ public class Stuck extends JavaPlugin {
             }
         }
         
-        // Validate current world
         World world = player.getWorld();
         if (world == null) {
             player.sendMessage(ChatColor.RED + "Error: Could not determine your current world.");
@@ -113,17 +103,11 @@ public class Stuck extends JavaPlugin {
             return true;
         }
         
-        // Notify player that search is beginning
         player.sendMessage(ChatColor.YELLOW + "Searching for a safe location...");
-        
-        // Attempt to find a safe location
         Location safeLoc = findSafeLocation(player.getLocation());
         
         if (safeLoc != null) {
-            // Set cooldown immediately to prevent spam
             cooldowns.put(uuid, now);
-            
-            // Show title and effects before teleporting
             player.sendTitle(ChatColor.LIGHT_PURPLE + "Escaping...", ChatColor.DARK_PURPLE + "Hold tight!", 10, 40, 10);
             spawnParticleEffect(player.getLocation(), Particle.PORTAL);
             player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_AMBIENT, 1.2f, 0.9f);
@@ -133,14 +117,10 @@ public class Stuck extends JavaPlugin {
                                    safeLoc.getWorld().getName() + " at " + safeLoc.getX() + ", " +
                                    safeLoc.getY() + ", " + safeLoc.getZ());
             }
-            
-            // Delay teleport by 2 seconds (40 ticks) for dramatic effect
             Bukkit.getScheduler().runTaskLater(this, () -> {
-                // Ensure the destination chunk is loaded (improved for 1.21.10)
                 try {
                     if (!safeLoc.getWorld().isChunkLoaded(safeLoc.getBlockX() >> 4, safeLoc.getBlockZ() >> 4)) {
                         safeLoc.getChunk().load();
-                        // Give chunk a moment to fully load
                         Bukkit.getScheduler().runTaskLater(this, () -> performTeleport(player, safeLoc), 5L);
                     } else {
                         performTeleport(player, safeLoc);
@@ -156,11 +136,6 @@ public class Stuck extends JavaPlugin {
         }
         return true;
     }
-
-    /**
-     * Performs the actual teleportation with proper error handling.
-     * Separated for better code organization and reusability.
-     */
     private void performTeleport(Player player, Location safeLoc) {
         try {
             boolean success = player.teleport(safeLoc);
@@ -187,11 +162,6 @@ public class Stuck extends JavaPlugin {
             getLogger().severe("Error teleporting " + player.getName() + ": " + e.getMessage());
         }
     }
-
-    /**
-     * Searches for a safe location based on configuration values.
-     * Enhanced for 1.21.10 with better world height handling and hazard detection.
-     */
     private Location findSafeLocation(Location start) {
         World world = start.getWorld();
         if (world == null) {
@@ -199,14 +169,11 @@ public class Stuck extends JavaPlugin {
             return null;
         }
 
-        // Adjust min/max Y based on world environment and modern world heights
-        int worldMinY = Math.max(world.getMinHeight() + 1, minY); // +1 to avoid bedrock level
-        int worldMaxY = Math.min(world.getMaxHeight() - 3, maxY); // -3 for head clearance
-        
-        // For 1.21+ worlds, use extended height ranges if not configured
-        if (minY == 32 && maxY == 120) { // Default values
-            worldMinY = Math.max(world.getMinHeight() + 5, -50); // Better default for new worlds
-            worldMaxY = Math.min(world.getMaxHeight() - 3, 200); // Better default for new worlds
+        int worldMinY = Math.max(world.getMinHeight() + 1, minY);
+        int worldMaxY = Math.min(world.getMaxHeight() - 3, maxY);
+        if (minY == 32 && maxY == 120) {
+            worldMinY = Math.max(world.getMinHeight() + 5, -50);
+            worldMaxY = Math.min(world.getMaxHeight() - 3, 200);
         }
         
         if (debug) {
@@ -215,14 +182,11 @@ public class Stuck extends JavaPlugin {
                                " with Y range " + worldMinY + "-" + worldMaxY);
         }
 
-        // Try to find a safe spot up to maxAttempts times
         for (int attempt = 0; attempt < maxAttempts; attempt++) {
             int xOffset = random.nextInt(searchRadius * 2 + 1) - searchRadius;
             int zOffset = random.nextInt(searchRadius * 2 + 1) - searchRadius;
             int x = start.getBlockX() + xOffset;
             int z = start.getBlockZ() + zOffset;
-
-            // Loop through Y from top to bottom in the specified range
             for (int y = worldMaxY; y >= worldMinY; y--) {
                 try {
                     Block ground = world.getBlockAt(x, y - 1, z);
@@ -234,23 +198,18 @@ public class Stuck extends JavaPlugin {
                                            ground.getType() + ", " + feet.getType() + ", " + head.getType());
                     }
                     
-                    // Check for a safe location (solid ground, air at feet and head level)
                     if (ground.getType().isSolid() &&
-                        (!avoidUnstableBlocks || (!ground.getType().toString().contains("LEAVES") && // Avoid leaves as they can be temporary
-                        !ground.getType().toString().contains("SNOW"))) && // Avoid snow layers
+                        (!avoidUnstableBlocks || (!ground.getType().toString().contains("LEAVES") &&
+                        !ground.getType().toString().contains("SNOW"))) &&
                         feet.getType() == Material.AIR &&
                         head.getType() == Material.AIR &&
                         !ground.isLiquid() &&
-                        (!avoidHazardousBlocks || !isHazardousBlock(ground))) { // Check for hazardous blocks
-                        
-                        // Create location with centered coordinates and correct orientation
+                        (!avoidHazardousBlocks || !isHazardousBlock(ground))) {
                         Location safeLocation = new Location(world, x + 0.5, y, z + 0.5, start.getYaw(), start.getPitch());
-                        
                         if (debug) {
                             getLogger().info("Found safe location at " + safeLocation.getBlockX() + ", " +
                                                safeLocation.getBlockY() + ", " + safeLocation.getBlockZ());
                         }
-                        
                         return safeLocation;
                     }
                 } catch (Exception e) {
@@ -291,16 +250,9 @@ public class Stuck extends JavaPlugin {
             }
         }
     }
-
-    /**
-     * Checks if a block is hazardous to teleport on top of.
-     * Updated for 1.21.10 compatibility with additional hazard checks.
-     */
     private boolean isHazardousBlock(Block block) {
         Material type = block.getType();
         String typeName = type.toString();
-        
-        // Check for dangerous blocks (updated for 1.21.10)
         return typeName.contains("LAVA") ||
                typeName.contains("FIRE") ||
                typeName.contains("MAGMA") ||
@@ -311,7 +263,6 @@ public class Stuck extends JavaPlugin {
                typeName.contains("POINTED_DRIPSTONE") ||
                type == Material.SOUL_FIRE ||
                type == Material.SOUL_CAMPFIRE ||
-               // Additional 1.21+ hazards
                (typeName.contains("COPPER") && typeName.contains("EXPOSED")) ||
                (typeName.contains("TRIAL") && typeName.contains("SPAWNER"));
     }
