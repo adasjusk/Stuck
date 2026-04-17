@@ -5,18 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.orang</groupId>
     <artifactId>stuck</artifactId>
-    <version>7.1</version>
+    <version>8.0</version>
     <packaging>jar</packaging>
     <name>Stuck</name>
     <description>A plugin that helps players get unstuck by teleporting them to a safe location.</description>
     <properties>
-    <java.version>21</java.version>
+        <java.version>25</java.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.11-R0.1-SNAPSHOT</version>
+            <version>26.1.2.build.7-alpha</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -25,10 +25,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.13.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <release>${java.version}</release>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
             <plugin>
