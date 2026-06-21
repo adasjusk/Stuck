@@ -1,0 +1,23 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT'
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(Integer.parseInt(java_version))
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+	implementation project(':common')
+}
+jar {
+	from project(':common').sourceSets.main.output
+}

@@ -1,0 +1,11 @@
+plugins {
+	id 'java'
+}
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(Integer.parseInt(java_version))
+	}
+}
+repositories {
+	mavenCentral()
+}

@@ -1,7 +1,7 @@
 name: Stuck
-version: '8.0'
-main: com.orang.stuck.Stuck
-api-version: '26.1.2'
+version: '9.0'
+main: com.orang.stuck.bukkit.StuckBukkit
+api-version: '26.2'
 folia-supported: true
 description: 'A plugin to help players get unstuck from glitched terrain'
 author: adasjusk
