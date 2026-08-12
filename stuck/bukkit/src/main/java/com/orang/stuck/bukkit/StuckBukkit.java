@@ -84,11 +84,11 @@ public class StuckBukkit extends JavaPlugin {
 			return false;
 		}
 		if (!(sender instanceof Player player)) {
-			sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+			sender.sendMessage(ChatColor.RED + "✘ Only players can use this command.");
 			return true;
 		}
 		if (!player.hasPermission("stuck.use")) {
-			player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+			player.sendMessage(ChatColor.RED + "⚠ You don't have permission to use this command.");
 			return true;
 		}
 		UUID uuid = player.getUniqueId();
@@ -96,25 +96,25 @@ public class StuckBukkit extends JavaPlugin {
 		if (cooldowns.containsKey(uuid)) {
 			long remaining = (cfg.cooldownSeconds * 1000L - (now - cooldowns.get(uuid))) / 1000;
 			if (remaining > 0) {
-				player.sendMessage(ChatColor.RED + "Please wait " + remaining + " seconds before using this command again.");
+				player.sendMessage(ChatColor.RED + "✘ Please wait " + remaining + " seconds before using this command again.");
 				return true;
 			}
 		}
 		World world = player.getWorld();
 		if (world == null) {
-			player.sendMessage(ChatColor.RED + "Error: Could not determine your current world.");
+			player.sendMessage(ChatColor.RED + "✘ Error: Could not determine your current world.");
 			return true;
 		}
-		player.sendMessage(ChatColor.YELLOW + "Searching for a safe location...");
+		player.sendMessage(ChatColor.YELLOW + "⚐ Searching for a safe location...");
 		Location start = player.getLocation();
 		int[] spot = finder.find(new BukkitBlockView(world), start.getBlockX(), start.getBlockY(), start.getBlockZ());
 		if (spot == null) {
-			player.sendMessage(ChatColor.RED + "Could not find a safe location. Please try again or contact an admin.");
+			player.sendMessage(ChatColor.RED + "⚠ Could not find a safe location. Please try again or contact an admin.");
 			return true;
 		}
 		cooldowns.put(uuid, now);
 		Location safeLoc = new Location(world, spot[0] + 0.5, spot[1], spot[2] + 0.5, start.getYaw(), start.getPitch());
-		player.sendTitle(ChatColor.LIGHT_PURPLE + "Escaping...", ChatColor.DARK_PURPLE + "Hold tight!", 10, 40, 10);
+		player.sendTitle(ChatColor.LIGHT_PURPLE + "⚑ Escaping...", ChatColor.DARK_PURPLE + "Hold tight!", 10, 40, 10);
 		spawnParticleEffect(start, Particle.PORTAL);
 		world.playSound(start, Sound.ENTITY_ENDERMAN_AMBIENT, 1.2f, 0.9f);
 		schedulePlayerTask(player, () -> {
@@ -128,8 +128,8 @@ public class StuckBukkit extends JavaPlugin {
 					performTeleport(player, safeLoc);
 				}
 			} catch (Exception e) {
-				player.sendMessage(ChatColor.RED + "Failed to prepare teleportation location: " + e.getMessage());
-				getLogger().severe("Chunk loading error for " + player.getName() + ": " + e.getMessage());
+				player.sendMessage(ChatColor.RED + "✘ Failed to prepare teleportation location: " + e.getMessage());
+				getLogger().severe("⚠ Chunk loading error for " + player.getName() + ": " + e.getMessage());
 			}
 		}, 40L);
 		return true;
@@ -151,8 +151,8 @@ public class StuckBukkit extends JavaPlugin {
 					onTeleportFail(player, safeLoc);
 				}
 			} catch (Exception e) {
-				player.sendMessage(ChatColor.RED + "An error occurred during teleportation: " + e.getMessage());
-				getLogger().severe("Error teleporting " + player.getName() + ": " + e.getMessage());
+				player.sendMessage(ChatColor.RED + "✘ An error occurred during teleportation: " + e.getMessage());
+				getLogger().severe("✘ Error teleporting " + player.getName() + ": " + e.getMessage());
 			}
 		}
 	}
@@ -160,13 +160,13 @@ public class StuckBukkit extends JavaPlugin {
 		playTeleportSound(safeLoc);
 		spawnParticleEffect(safeLoc, Particle.END_ROD);
 		if (cfg.printSuccessMessage) {
-			player.sendMessage(ChatColor.GREEN + "There you go! You've been teleported to a safe location.");
+			player.sendMessage(ChatColor.GREEN + "⚑ There you go! You've been teleported to a safe location.");
 		}
 	}
 
 	private void onTeleportFail(Player player, Location safeLoc) {
-		player.sendMessage(ChatColor.RED + "Teleportation failed. Try again or contact an admin.");
-		getLogger().warning("Teleport failed for " + player.getName());
+		player.sendMessage(ChatColor.RED + "✘ Teleportation failed. Try again or contact an admin.");
+		getLogger().warning("✘ Teleport failed for " + player.getName());
 	}
 
 	private void schedulePlayerTask(Player player, Runnable task, long delayTicks) {

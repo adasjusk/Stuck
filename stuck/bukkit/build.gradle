@@ -19,13 +19,11 @@ dependencies {
 	compileOnly "io.papermc.paper:paper-api:${paper_version}"
 }
 
-// Bundle :common into the plugin jar (Bukkit has no jar-in-jar).
 shadowJar {
 	archiveClassifier = ''
 	configurations = [project.configurations.runtimeClasspath]
 }
 
-// shadowJar already produces bukkit.jar; disable the plain jar so they don't fight over the same path.
 jar {
 	enabled = false
 }

@@ -42,7 +42,7 @@ public final class SafeSpotFinder {
 			effectiveAttempts = Math.max(cfg.maxAttempts, 200);
 			debug("Player on nether roof — radius=" + effectiveRadius + ", attempts=" + effectiveAttempts);
 		}
-		debug("Searching around " + startX + "," + startY + "," + startZ +
+		debug("⚐ Searching around " + startX + "," + startY + "," + startZ +
 				" Y-range " + worldMinY + "-" + worldMaxY + (isNether ? " (Nether)" : ""));
 		for (int attempt = 0; attempt < effectiveAttempts; attempt++) {
 			int x = startX + random.nextInt(effectiveRadius * 2 + 1) - effectiveRadius;
@@ -59,12 +59,12 @@ public final class SafeSpotFinder {
 						view.isAir(x, y, z) && view.isAir(x, y + 1, z) &&
 						!view.isLiquid(x, gy, z) &&
 						(!cfg.avoidHazardousBlocks || !isHazardous(groundName))) {
-					debug("Found safe spot at " + x + "," + y + "," + z);
+					debug("⚑ Found safe spot at " + x + "," + y + "," + z);
 					return new int[]{x, y, z};
 				}
 			}
 		}
-		debug("No safe spot after " + effectiveAttempts + " attempts");
+		debug("✘ No safe spot after " + effectiveAttempts + " attempts");
 		return null;
 	}
 

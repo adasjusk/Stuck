@@ -42,7 +42,7 @@ public class StuckFabric implements ModInitializer {
 		CommandSourceStack source = ctx.getSource();
 		ServerPlayer player = source.getPlayer();
 		if (player == null) {
-			source.sendFailure(Component.literal("Only players can use this command."));
+			source.sendFailure(Component.literal("✘ Only players can use this command."));
 			return 0;
 		}
 		UUID uuid = player.getUUID();
@@ -51,26 +51,26 @@ public class StuckFabric implements ModInitializer {
 		if (last != null) {
 			long remaining = (cfg.cooldownSeconds * 1000L - (now - last)) / 1000;
 			if (remaining > 0) {
-				source.sendFailure(Component.literal("Please wait " + remaining + " seconds before using this command again."));
+				source.sendFailure(Component.literal("⚐ Please wait " + remaining + " seconds before using this command again."));
 				return 0;
 			}
 		}
 		ServerLevel level = player.level();
-		source.sendSystemMessage(Component.literal("Searching for a safe location...").withStyle(ChatFormatting.YELLOW));
+		source.sendSystemMessage(Component.literal("⚐ Searching for a safe location...").withStyle(ChatFormatting.YELLOW));
 
 		int sx = player.blockPosition().getX();
 		int sy = player.blockPosition().getY();
 		int sz = player.blockPosition().getZ();
 		int[] spot = finder.find(new FabricBlockView(level), sx, sy, sz);
 		if (spot == null) {
-			source.sendFailure(Component.literal("Could not find a safe location. Please try again or contact an admin."));
+			source.sendFailure(Component.literal("✘ Could not find a safe location. Please try again or contact an admin."));
 			return 0;
 		}
 
 		cooldowns.put(uuid, now);
 		player.teleportTo(spot[0] + 0.5, spot[1], spot[2] + 0.5);
 		if (cfg.printSuccessMessage) {
-			source.sendSuccess(() -> Component.literal("There you go! You've been teleported to a safe location.")
+			source.sendSuccess(() -> Component.literal("⚑ There you go! You've been teleported to a safe location.")
 					.withStyle(ChatFormatting.GREEN), false);
 		}
 		return 1;
@@ -88,7 +88,7 @@ public class StuckFabric implements ModInitializer {
 				writeDefaults(file);
 			}
 		} catch (IOException e) {
-			LOGGER.warning("Could not load stuck.properties, using defaults: " + e.getMessage());
+			LOGGER.warning("✘ Could not load stuck.properties, using defaults: " + e.getMessage());
 		}
 		cfg.cooldownSeconds = getInt(p, "cooldown-seconds", cfg.cooldownSeconds);
 		cfg.searchRadius = getInt(p, "search-radius", cfg.searchRadius);

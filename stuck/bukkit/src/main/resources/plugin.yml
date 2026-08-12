@@ -1,5 +1,5 @@
 name: Stuck
-version: '9.0'
+version: '9.1'
 main: com.orang.stuck.bukkit.StuckBukkit
 api-version: '26.2'
 folia-supported: true
