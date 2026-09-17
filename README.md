@@ -7,7 +7,6 @@ The Unstuck plugin is designed for Minecraft Spigot servers to help players who 
 - **Stuck Command**: A command that players can use to teleport themselves out of the bedrock layer.
 - **Safe Teleportation**: The plugin calculates a safe location above the bedrock layer safe zone.
 - **Configurable Settings**: Server admins can configure the safe teleport location or the height to which players should be teleported.
-- **Permission-Based Access**: Only players with the appropriate permissions can use the unstuck command.
 
 ## Commands
 - `/stuck` - Teleports the player to a safer location
@@ -15,7 +14,7 @@ The Unstuck plugin is designed for Minecraft Spigot servers to help players who 
 
 ## Installation
 1. Download the plugin unstuck.jar file.
-2. Place the jar file in the `plugins` folder of your Spigot/Paper server.
+2. Place the jar file in the plugins folder of your Spigot/Paper server.
 3. Restart the server to load the plugin.
 4. Configure the plugin settings in the generated `config.yml` file if necessary.
 
@@ -45,6 +44,6 @@ print-success-message: true
 ```
 
 ## Versions and support
-- Loaders: - **Spigot, Paper, Folia, Fabric (dedicated)** — full support
+- Loaders: - **Spigot, Paper, Folia, Fabric (dedicated)**
 - MC version: 1.21.x-26.3
 - Made by human with love 🧡
