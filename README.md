@@ -45,6 +45,6 @@ print-success-message: true
 ```
 
 ## Versions and support
-Loaders: - **Spigot, Paper, Folia, Fabric (dedicated)** — full support
-MC version: 1.21.x-26.3
-Made by human with love 🧡
+- Loaders: - **Spigot, Paper, Folia, Fabric (dedicated)** — full support
+- MC version: 1.21.x-26.3
+- Made by human with love 🧡
