@@ -1,27 +1,17 @@
 # Stuck? Plugin
 
 ## Description
-The Unstuck plugin is designed for Minecraft Spigot servers to help players who are trapped in the bedrock layer at height 127. This plugin provides a simple commands to teleport players to a safer location, ensuring they can continue their adventure without being stuck. 
-
-# Compatibility
-- **Spigot, Paper, Folia** — full support `plugin.yml`
-- **Fabric** (server) — full support `fabric.mod.json`
-
-Velocity is intentionally not supported: a proxy has no world/blocks loaded, so there is nothing to scan
-or teleport into.
+The Unstuck plugin is designed for Minecraft Spigot servers to help players who are trapped in the bedrock layer at height 127. This plugin provides commands to teleport players to a safer location. 
 
 ## Features
 - **Stuck Command**: A command that players can use to teleport themselves out of the bedrock layer.
-- **Safe Teleportation**: The plugin calculates a safe location above the bedrock layer or to a predefined safe zone.
+- **Safe Teleportation**: The plugin calculates a safe location above the bedrock layer safe zone.
 - **Configurable Settings**: Server admins can configure the safe teleport location or the height to which players should be teleported.
-- **Permission-Based Access**: Only players with the appropriate permissions can use the unstuck command, ensuring fair use.
+- **Permission-Based Access**: Only players with the appropriate permissions can use the unstuck command.
 
 ## Commands
 - `/stuck` - Teleports the player to a safer location
 - `/escape` - Player escapes to a safer location
-
-## Permissions
-There is no need for them.
 
 ## Installation
 1. Download the plugin unstuck.jar file.
@@ -52,3 +42,9 @@ avoid-hazardous-blocks: true
 avoid-unstable-blocks: true
 # Print success message when player gets unstuck (disable to reduce spam)
 print-success-message: true
+```
+
+## Versions and support
+Loaders: - **Spigot, Paper, Folia, Fabric (dedicated)** — full support
+MC version: 1.21.x-26.3
+Made by human with love 🧡
