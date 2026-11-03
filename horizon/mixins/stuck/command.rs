@@ -1,4 +1,4 @@
-// /stuck or /escape: check the cooldown and queue a search for the next tick.
+// /stuck or /escape check the cooldown and count
 fn stuck_command(
     game: &mut crate::game::Game<'_>,
     player: &crate::game::native_server::NativeServerPlayer,

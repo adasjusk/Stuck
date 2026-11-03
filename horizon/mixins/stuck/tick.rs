@@ -1,4 +1,4 @@
-// Start of each server tick: run the queued searches and teleport.
+// start of each server tick
 fn stuck_tick(
     game: &mut crate::game::Game<'_>,
     context: &crate::game::native_lifecycle::NativeLifecycleContext,

@@ -1,4 +1,4 @@
-// Stuck for Horizon, the module crate::game::stuck and the Cargo library for cargo test.
+// the module crate::game::stuck and the Cargo library for cargo test
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::path::Path;
@@ -50,7 +50,7 @@ pub fn parse(text: &str) -> Config {
     }
 }
 
-/// A /stuck waiting for the next server tick, where blocks can be read.
+/// /stuck waiting for next server tick, where blocks can be read.
 pub struct Request {
     pub uuid: u128,
     pub name: String,
@@ -69,7 +69,7 @@ thread_local! {
     );
 }
 
-/// A world opens: read the config (writing the defaults when it is missing).
+/// world opens, read the config
 pub fn start(dir: Option<&Path>) {
     let text = dir.and_then(|d| {
         let path = d.join("stuck.properties");
@@ -87,7 +87,7 @@ pub fn config() -> Config {
     CONFIG.with(|c| c.borrow().clone())
 }
 
-/// Seconds `uuid` still waits before the next /stuck, if any.
+/// seconds uuid still waits before the next /stuck if any
 pub fn cooldown_left(uuid: u128, now: Instant) -> Option<u64> {
     let wait = Duration::from_secs(config().cooldown_seconds);
     LAST_USE.with(|l| {
@@ -108,7 +108,7 @@ pub fn take_requests() -> Vec<Request> {
     REQUESTS.with(|q| std::mem::take(&mut *q.borrow_mut()))
 }
 
-/// xorshift64: a number in 0..n.
+/// xorshift64
 fn roll(n: i32) -> i32 {
     SEED.with(|s| {
         let mut x = s.get();
@@ -128,7 +128,7 @@ fn air(name: &str) -> bool {
     matches!(bare(name), "air" | "cave_air" | "void_air")
 }
 
-// By name, as Horizon gives no collision shapes yet.
+// by name as horizon gives no collision shapes
 fn solid(name: &str) -> bool {
     let n = bare(name);
     const THROUGH: &[&str] = &[
@@ -154,7 +154,7 @@ fn unstable(name: &str) -> bool {
     n.contains("leaves") || n.contains("snow")
 }
 
-/// Solid ground with two air blocks above, highest in a random column nearby.
+/// solid ground with two air blocks above
 pub fn find(
     cfg: &Config,
     dimension: &str,
@@ -162,10 +162,9 @@ pub fn find(
     block: impl Fn(i32, i32, i32) -> Option<String>,
 ) -> Option<[i32; 3]> {
     let nether = dimension == "minecraft:the_nether";
-    // Vanilla's heights, custom dimension heights are not read.
     let (bottom, top) = if dimension == "minecraft:overworld" { (-64, 320) } else { (0, 256) };
     let (mut min_y, mut max_y) = if cfg.min_y == 32 && cfg.max_y == 120 {
-        // The defaults stretch to the whole world, as in the Java builds.
+        // the defaults stretch to the whole world
         ((bottom + 5).max(-50), (top - 3).min(200))
     } else {
         ((bottom + 1).max(cfg.min_y), (top - 3).min(cfg.max_y))
@@ -205,7 +204,6 @@ pub fn find(
 mod tests {
     use super::*;
 
-    // Stone up to y 63, air above, lava at column x == 1.
     fn world(x: i32, y: i32, _z: i32) -> Option<String> {
         Some(match (x, y) {
             (1, 63) => "minecraft:lava",
@@ -218,9 +216,8 @@ mod tests {
     fn finds_the_surface() {
         let cfg = Config { search_radius: 0, ..parse(DEFAULTS) };
         assert_eq!(find(&cfg, "minecraft:overworld", [0, 10, 0], world), Some([0, 64, 0]));
-        // Only the lava column: nowhere safe.
+        // only lava column
         assert_eq!(find(&cfg, "minecraft:overworld", [1, 10, 0], world), None);
-        // Unloaded everywhere.
         assert_eq!(find(&cfg, "minecraft:overworld", [0, 10, 0], |_, _, _| None), None);
     }
 
@@ -234,7 +231,7 @@ mod tests {
                 _ => "minecraft:air",
             }.into())
         };
-        // On the roof the radius widens to 16: any column, under the roof.
+        // on the roof the radius widens to 16
         let spot = find(&cfg, "minecraft:the_nether", [0, 128, 0], nether).unwrap();
         assert_eq!(spot[1], 41);
     }
