@@ -47,3 +47,14 @@ print-success-message: true
 - Loaders: - **Spigot, Paper, Folia, Fabric (dedicated)**
 - MC version: 1.21.x-26.3
 - Made by human with love 🧡
+
+## Horizon
+
+`horizon/` is a native mod for [Horizon](https://playhorizon.dev/docs/make-a-mod) (26.3), server side:
+it runs where the world is hosted (single player and LAN hosts, as Horizon's dedicated server can't build
+native mods yet). `/stuck` and `/escape` work as above.
+
+Config: `config/stuck.properties`, the same keys as Fabric (`debug` is ignored). Only loaded chunks are
+searched, and solid ground is told apart by block name. Build and test from a clone of
+`horizon-rust/horizon-mods`: `python3 native/tools/native.py check /path/to/Stuck/horizon`, unit tests with
+`cargo test` in `horizon/`.
