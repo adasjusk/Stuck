@@ -1,0 +1,9 @@
+[package]
+name = "stuck"
+version = "1.0.0"
+edition = "2024"
+license = "CC-BY-SA-4.0"
+publish = false
+
+[lib]
+path = "mixins/stuck/runtime.rs"
