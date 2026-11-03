@@ -3,7 +3,6 @@ id = "stuck"
 version = "1.0.0"
 priority = 100
 
-# Only native hook points (hooks 28): builds on any Horizon that has them.
 [compatibility]
 horizon_revision = "d91cab68ded29bd2b004f7050c468fb98c41a00b"
 
